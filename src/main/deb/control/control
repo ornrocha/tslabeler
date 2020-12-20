@@ -1,0 +1,8 @@
+Package: TSLabeler
+Version: 1.0.0
+Section: video
+Priority: low
+Architecture: all
+Description: Create labels for anomalies in time series.
+Maintainer: Orlando Rocha <ornrocha@gmail.com>
+Depends: default-jre

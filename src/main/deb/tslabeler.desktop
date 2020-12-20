@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=TSLabeler
+Type=Application
+Exec=java -Duser.dir=/opt/tslabeler -jar /opt/tslabeler/tslabeler.jar
+Terminal=false
+Icon=/opt/tslabeler/icons/bigicon.png
+Comment=Create labels for anomalies in time series.
+NoDisplay=false
+Categories=Development
+Name[en]=TSLabeler

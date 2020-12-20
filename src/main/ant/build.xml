@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     18/09/2014 13:26:03                                                        
+
+     project    
+     description
+                   
+     orocha                                                                
+     ====================================================================== -->
+<project name="project" basedir="." default="build-releases">
+	<description>description </description>
+
+
+	<property name="debug" value="on" />
+	<property name="optimize" value="off" />
+	<property name="deprecation" value="false" />
+	<property name="depend" value="true" />
+	<property name="verbose" value="false" />
+
+
+	<!-- ==================================================================
+	         Initialization target 
+	      ==================================================================-->
+
+	<target name="init">
+
+		<property name="target.dir" value="${project.build.directory}" />
+		<property name="build.dir" value="${target.dir}/build_dir" />
+		<property name="distro.dir" value="${build.dir}/distros" />
+
+
+	</target>
+
+
+	<!-- ==================================================================
+			        Scripts operations
+			      ==================================================================-->
+
+	<target name="make-linux-run-script">
+		<echo file="${linux.build.dir}/run.sh" append="false">#!/bin/bash
+		###################################################################
+		#
+		echo "TSLabeler for Linux"
+		# 
+		#		
+		echo "Orlando Rocha Copyright (c) 2020."
+		#
+		###################################################################
+
+
+		JAR_NAME="tslabeler.jar"
+		APP_HOME=`dirname $0`
+		XMX=-Xmx512m
+		XMS=-Xms256M
+				 
+		$APP_HOME/jre/bin/java $XMX $XMS -jar $APP_HOME/$JAR_NAME "$@"</echo>
+
+		<chmod file="${linux.build.dir}/run.sh" perm="a+x" />
+
+	</target>
+
+	<target name="make-windows-run-script">
+		<echo file="${windows.build.dir}/run.bat" append="false">@echo off
+				REM ###############################################################################################
+				REM #
+				REM	# TSLabeler for Windows
+				REM	# 
+				REM	#		
+				REM	# Orlando Rocha Copyright (c) 2020.
+				REM	#
+				REM ###############################################################################################
+				REM ################ old #################
+				REM ####   set HOME="%~dp0"  #############
+				REM ####   cd %HOME%  ####################
+				REM ######################################
+				REM ######  for /f %%i in ("%0") do set apppath=%%~dpi
+				REM ######  cd /d %apppath%
+				
+				setlocal
+				cd /d %~dp0
+				start tslabeler.jar
+				
+		    </echo>
+		<chmod file="${windows.build.dir}/run.bat" perm="a+x" />
+	</target>
+
+
+
+	<!-- ==================================================================
+				       Izpack operations
+				      ==================================================================-->
+
+
+	<target name="make-izpack-package-unix-script">
+		<echo file="${linux.build.dir}/installer_unix_shortcutSpec.xml" append="false"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+				   	     <shortcuts>
+				   	        <skipIfNotSupported/>
+				   	        <defaultCurrentUser/>
+				   	        <programGroup defaultName="TSLabeler" location="applications"/>
+				   	        <shortcut 
+				   	  	           name="TSLabeler"
+				   	  	           target="$INSTALL_PATH/run.sh"
+				   	  	           description="Create labels for anomalies in time series."
+				   	               applications="no" 
+				   	               desktop="no"
+				   	               encoding="UTF-8" 
+				   	               iconFile="$INSTALL_PATH/icons/bigicon.png"
+				   	               workingDirectory="$INSTALL_PATH"
+				   	               iconIndex="0" 
+				   	               initialState="normal" 
+				   	               programGroup="yes" 
+				   	               startMenu="no" 
+				   	               startup="no"
+				   	               type="Application"
+			                       categories="Development"
+				   	               />    
+				   	 </shortcuts>]]></echo>
+		</target>
+	
+	<target name="make-izpack-package-windows-script">
+				 <echo file="${windows.build.dir}/default_shortcut_specification.xml" append="false"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+						   	    	<shortcuts>
+						   	    	    <skipIfNotSupported/>
+						   	    	    <defaultCurrentUser/>
+						   	    	    <programGroup defaultName="TSLabeler" location="applications"/>
+						   	    	    <shortcut 
+						   	    	        name="TSLabeler"
+						   	    	        applications="no" 
+						   	    	        desktop="yes"
+						   	    	        iconFile="$INSTALL_PATH\icons\bigicon.ico" 
+						   	    	        iconIndex="0"
+				 	                        initialState="normal" 
+						   	    	        programGroup="yes"
+						   	    	        startMenu="no" 
+						   	    	        startup="no" 
+						   	    	        target="$INSTALL_PATH/run.bat"
+						   	    	        description="Create labels for anomalies in time series.">
+						   	    	<createForPack name="TSLabeler_Core"/>
+						   	    	</shortcut>
+				 					<shortcut
+				 					   	    name="Uninstall"
+				 					   	    programGroup="yes"
+				 					   	    desktop="no"
+				 					   	    applications="no"
+				 					   	    startMenu="no"
+				 					   	    startup="no"
+				 					   	    target="$INSTALL_PATH\Uninstaller\uninstaller.jar"
+				 					   	    commandLine=""
+				 			 	 			iconFile="%SystemRoot%\system32\SHELL32.dll"
+				 					   	    iconIndex="31"
+				 					   	    description="Rencoder Uninstaller">
+
+				 					    <createForPack name="TSLabeler_Core"/>
+				 					</shortcut>
+						   	    	</shortcuts>]]></echo>
+			</target>
+
+	
+
+
+	<!-- ==================================================================
+	        Creation operations
+	      ==================================================================-->
+
+	<condition property="isUnix">
+		<os family="unix" />
+	</condition>
+
+	<target name="create-dist-dir" description="distribution directory">
+		<delete dir="${distro.dir}" />
+		<mkdir dir="${distro.dir}" />
+		<echo message="Distribution directory: was created" />
+	</target>
+
+
+	<target name="unzip-jre-linux">
+		<unzip src="${basedir}/src/main/jre/OpenJDK8U-jre_x64_linux_hotspot.zip" dest="${linux.build.dir}" />
+	</target>
+
+	<target name="unzip-jre-windows">
+		<unzip src="${basedir}/src/main/jre/OpenJDK8U-jre_x64_windows_hotspot.zip" dest="${windows.build.dir}" />
+	</target>
+
+
+	<target name="copy-tslabeler-jar" description="copy tslabeler exe">
+		<copy file="${build.dir}/tslabeler.jar" todir="${linux.build.dir}/" />
+		<copy file="${build.dir}/tslabeler.jar" todir="${windows.build.dir}/" />
+	</target>
+
+
+
+
+	<target name="build-releases" description="Create  auxiliar files" depends="init">
+		<antcall target="create-dist-dir" />
+		<antcall target="make-linux-run-script" />
+		<antcall target="make-izpack-package-unix-script" />
+		<antcall target="make-windows-run-script" />
+		<antcall target="make-izpack-package-windows-script" />
+		<antcall target="copy-tslabeler-jar" />
+		<antcall target="unzip-jre-linux" />
+		<antcall target="unzip-jre-windows" />
+	</target>
+
+
+
+</project>
